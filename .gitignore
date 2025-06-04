@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Spotipy cache (Spotify token)
+.cache/
+
+# Jupyter Notebook checkpoints
+notebooks/.ipynb_checkpoints/
+notebooks/.cache/
+
+# Environment variables
+.env
+
+# VS Code settings (optional)
+.vscode/
+
+# Mac system files (optional but good)
+.DS_Store
+
+# Test output (if you add pytest later)
+htmlcov/
+coverage.xml
+.pytest_cache/
+
+# General Python virtual environment folders (if you use venv or poetry)
+venv/
+.env/
+.venv/
