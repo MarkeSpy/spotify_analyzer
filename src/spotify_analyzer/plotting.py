@@ -12,22 +12,51 @@ import pandas as pd
 from typing import Optional
 
 # Optional: reusable bar plot utility
-def _plot_horizontal_bar(df: pd.DataFrame, x: str, y: str, title: str, color_scale: str = "Viridis") -> go.Figure:
-    fig = px.bar(
-        df,
-        x=x,
-        y=y,
-        orientation='h',
-        title=title,
-        color=x,
-        color_continuous_scale=color_scale,
-        template='plotly_white'
-    )
-    fig.update_layout(yaxis=dict(autorange="reversed"))
+def _plot_bar(
+    df: pd.DataFrame,
+    evolution: bool,
+    x: str,
+    y: str,
+    title: str,
+    color: str,
+    orientation: str = 'v'
+) -> go.Figure:
+    if evolution:
+        # Evolution → grouped vertical bar chart
+        fig = px.bar(
+            df,
+            x=x,
+            y=y,
+            color=color,
+            barmode='group',
+            title=title,
+            template='plotly_white'
+        )
+    else:
+        # Single time range → horizontal bar
+        fig = px.bar(
+            df,
+            x=x,
+            y=y,
+            orientation=orientation,
+            color=color,
+            color_continuous_scale="Viridis",
+            title=title,
+            template='plotly_white'
+        )
+        # Only reverse axis for horizontal
+        if orientation == 'h':
+            fig.update_layout(yaxis=dict(autorange="reversed"))
+
     return fig
 
+
 # Plot top genres
-def plot_top_genres(genres_df: pd.DataFrame, time_range: str) -> go.Figure:
+def plot_top_genres(
+    df: pd.DataFrame,
+    time_range: Optional[str] = None,
+    evolution: bool = False
+) -> go.Figure:
     """
     Plots top genres for a given time range.
 
@@ -38,12 +67,22 @@ def plot_top_genres(genres_df: pd.DataFrame, time_range: str) -> go.Figure:
     Returns:
         plotly.graph_objects.Figure
     """
-    return _plot_horizontal_bar(
-        genres_df,
-        x='count',
-        y='genre',
-        title=f"Top Genres ({time_range.replace('_', ' ').title()})"
+    if evolution and time_range is not None:
+        raise ValueError("Cannot specify both evolution=True and time_range. Choose one.")
+
+    if evolution:
+        return _plot_bar(
+            df,
+            evolution=evolution,
+            x='genre',
+            y='count',
+            color='time_range',
+            title=f'Top Genre Frequency Across Time Ranges'
     )
+    if not time_range:
+        raise ValueError("You must specify time_range when evolution=False")
+    
+    return _plot_bar(df,evolution=evolution, x='count',y='genre',title=f"Top Genres ({time_range.replace('_', ' ').title()})", color='count', orientation='h')
 
 # Plot artist loyalty over time
 def plot_artist_loyalty(loyalty_df: pd.DataFrame) -> go.Figure:
@@ -87,29 +126,6 @@ def plot_genre_diversity(diversity_df: pd.DataFrame) -> go.Figure:
         text_auto='.2f',
         color='genre_entropy',
         color_continuous_scale='Purples',
-        template='plotly_white'
-    )
-    return fig
-
-# Plot average duration over time
-def plot_average_duration(duration_df: pd.DataFrame) -> go.Figure:
-    """
-    Plots average track duration over time.
-
-    Args:
-        duration_df (pd.DataFrame): Output of get_average_duration.
-
-    Returns:
-        plotly.graph_objects.Figure
-    """
-    fig = px.bar(
-        duration_df,
-        x='time_range',
-        y='avg_duration_min',
-        title="Average Track Duration Over Time",
-        text_auto='.2f',
-        color='avg_duration_min',
-        color_continuous_scale='Greens',
         template='plotly_white'
     )
     return fig

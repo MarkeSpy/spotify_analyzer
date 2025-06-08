@@ -98,9 +98,3 @@ def enrich_with_genres(df: pd.DataFrame) -> pd.DataFrame:
     genre_map = get_artist_genres(artist_ids.tolist())
     df['genres'] = df['artist_id'].map(lambda x: genre_map.get(x, []))
     return df
-
-def lela(time_range: str, limit: int = 50):
-    results = sp.current_user_top_tracks(time_range=time_range, limit=limit)
-
-
-    return results

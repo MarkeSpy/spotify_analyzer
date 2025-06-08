@@ -20,7 +20,7 @@ import pandas as pd
 from collections import Counter
 from scipy.stats import entropy
 from typing import Optional, List
-
+import streamlit as st
 # ---------- Top Genres ----------
 def get_top_genres(
     df: pd.DataFrame,
@@ -32,8 +32,10 @@ def get_top_genres(
     Returns top genres, either for one time range or across all time ranges.
 
     Returns:
-        pd.DataFrame: Columns ['time_range', 'genre', 'count']
+        pd.DataFrame: Columns ['genre', 'count']
     """
+
+
     if evolution and time_range is not None:
         raise ValueError("Cannot specify both evolution=True and time_range. Choose one.")
 
@@ -50,7 +52,7 @@ def get_top_genres(
     filtered_df = df.loc[df['time_range'] == time_range]
     genre_counts = Counter(genre for sublist in filtered_df['genres'] for genre in sublist)
     items = genre_counts.most_common(top_n) if top_n else genre_counts.items()
-    return pd.DataFrame(items, columns=['genre', 'count'])
+    return pd.DataFrame(items, columns=['genre', 'count']).assign(time_range = time_range)
 
 # ---------- Artist Loyalty ----------
 def get_artist_loyalty(
@@ -64,7 +66,7 @@ def get_artist_loyalty(
     - loyalty_ratio
     - top_artist_dominance
     Returns:
-        pd.DataFrame: Columns ['time_range', 'unique_artists', 'loyalty_ratio', 'top_artist_dominance']
+        pd.DataFrame: Columns ['time_range', 'unique_artists', 'loyalty_ratio']
     """
     if evolution and time_range is not None:
         raise ValueError("Cannot specify both evolution=True and time_range. Choose one.")
